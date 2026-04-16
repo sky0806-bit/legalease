@@ -1,6 +1,8 @@
-import Groq from "groq-sdk";
+const Groq = require("groq-sdk");
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY,
+});
 
 export async function POST(req) {
   try {
@@ -22,6 +24,7 @@ export async function POST(req) {
       "plain": "plain English meaning",
       "risk": "Low or Medium or High",
       "flag": "why the user should care"
+
     }
   ],
   "negotiate": [
