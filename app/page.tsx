@@ -11,7 +11,7 @@ export default function Home() {
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef(null);
 
-  async function handleFile(file) {
+  async function handleFile(file: any) {
     if (!file || file.type !== "application/pdf") {
       setError("Please upload a PDF file only");
       return;

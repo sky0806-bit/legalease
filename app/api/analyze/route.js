@@ -13,7 +13,7 @@ export async function POST(req) {
       const file = formData.get("file");
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-      const pdfParse = (await import("pdf-parse/lib/pdf-parse.js")).default;
+      const pdfParse = (await import("pdf-parse")).default;
       const pdfData = await pdfParse(buffer);
       text = pdfData.text;
     } else {
