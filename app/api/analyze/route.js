@@ -1,12 +1,29 @@
 const Groq = require("groq-sdk");
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 export async function POST(req) {
   try {
-    const { text } = await req.json();
+    let text = "";
+
+    const contentType = req.headers.get("content-type") || "";
+
+    if (contentType.includes("multipart/form-data")) {
+      const formData = await req.formData();
+      const file = formData.get("file");
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const pdfParse = (await import("pdf-parse/lib/pdf-parse.js")).default;
+      const pdfData = await pdfParse(buffer);
+      text = pdfData.text;
+    } else {
+      const body = await req.json();
+      text = body.text;
+    }
+
+    if (!text || text.trim().length < 20) {
+      return Response.json({ error: "Document too short or empty" }, { status: 400 });
+    }
 
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
@@ -24,7 +41,6 @@ export async function POST(req) {
       "plain": "plain English meaning",
       "risk": "Low or Medium or High",
       "flag": "why the user should care"
-
     }
   ],
   "negotiate": [
@@ -34,7 +50,7 @@ export async function POST(req) {
         },
         {
           role: "user",
-          content: `Analyze this legal document:\n\n${text}`
+          content: `Analyze this legal document:\n\n${text.slice(0, 8000)}`
         }
       ],
       temperature: 0.3,
